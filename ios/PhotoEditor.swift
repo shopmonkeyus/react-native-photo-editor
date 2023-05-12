@@ -25,7 +25,7 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
     var resolve: RCTPromiseResolveBlock!
     var reject: RCTPromiseRejectBlock!
     
-    @objc(open:withResolver:withRejecter:)
+    @objc(open:callback:withResolver:withRejecter:)
     func open(options: NSDictionary, callback:@escaping RCTResponseSenderBlock, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
         
         // handle path
