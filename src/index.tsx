@@ -14,7 +14,7 @@ export type ErrorCode =
   | 'ERROR_UNKNOW';
 
 type PhotoEditorType = {
-  open(option: Options): Promise<String>;
+  open(option: Options, customCallback: Function): Promise<String>;
 };
 
 const { PhotoEditor } = NativeModules;
