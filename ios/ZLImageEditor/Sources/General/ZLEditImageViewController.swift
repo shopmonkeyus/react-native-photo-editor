@@ -28,10 +28,12 @@ import UIKit
 
 public protocol ZLEditImageControllerDelegate: class {
     func onCancel()
+    func onClip()
 }
 
 extension ZLEditImageControllerDelegate {
     func onCancel() { }
+    func onClip() { }
 }
 
 public class ZLEditImageModel: NSObject {
@@ -616,6 +618,8 @@ public class ZLEditImageViewController: UIViewController {
     func clipBtnClick() {
         let currentEditImage = self.buildImage()
         
+        ZLEditImageViewController.delegate?.onClip()
+
         let vc = ZLClipImageViewController(image: currentEditImage, editRect: self.editRect, angle: self.angle, selectRatio: self.selectRatio)
         let rect = self.scrollView.convert(self.containerView.frame, to: self.view)
         vc.presentAnimateFrame = rect
