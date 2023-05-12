@@ -21,11 +21,12 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
     var window: UIWindow?
     var bridge: RCTBridge!
     
+    var callback: RCTResponseSenderBlock!
     var resolve: RCTPromiseResolveBlock!
     var reject: RCTPromiseRejectBlock!
     
     @objc(open:withResolver:withRejecter:)
-    func open(options: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
+    func open(options: NSDictionary, callback:@escaping RCTResponseSenderBlock, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
         
         // handle path
         guard let path = options["path"] as? String else {
@@ -36,7 +37,7 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
         getUIImage(url: path) { image in
             DispatchQueue.main.async {
                 //  set config
-                self.setConfiguration(options: options, resolve: resolve, reject: reject)
+                self.setConfiguration(options: options, callback: callback, resolve: resolve, reject: reject)
                 self.presentController(image: image)
             }
         } reject: {_ in
@@ -47,8 +48,13 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
     func onCancel() {
         self.reject("USER_CANCELLED", "User has cancelled", nil)
     }
+
+    func onClip() {
+        self.callback("USER_CLIP", "User has clipped", nil)
+    }
     
-    private func setConfiguration(options: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void{
+    private func setConfiguration(options: NSDictionary, callback:@escaping RCTResponseSenderBlock, resolve:@escaping RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void{
+        self.callback = callback;
         self.resolve = resolve;
         self.reject = reject;
         
