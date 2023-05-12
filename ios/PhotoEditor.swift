@@ -59,8 +59,8 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
         
         //Config
         ZLImageEditorConfiguration.default().editDoneBtnBgColor = UIColor(red:255/255.0, green:238/255.0, blue:101/255.0, alpha:1.0)
-
-        ZLImageEditorConfiguration.default().editImageTools = [.draw, .clip, .filter, .imageSticker, .textSticker]
+        // ZLImageEditorConfiguration.default().editImageTools = [.draw, .clip, .filter, .imageSticker, .textSticker]
+        ZLImageEditorConfiguration.default().editImageTools = [.draw, .clip, .imageSticker, .textSticker]
         
         //Filters Lut
         do {

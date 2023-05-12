@@ -37,8 +37,16 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.facebook.react.ReactApplication
+import com.facebook.react.ReactInstanceManager
+import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
+import com.reactnativephotoeditor.PhotoEditorModule
 import com.reactnativephotoeditor.R
 import com.reactnativephotoeditor.activity.StickerFragment.StickerListener
 import com.reactnativephotoeditor.activity.constant.ResponseCode
@@ -73,10 +81,11 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   private val mConstraintSet = ConstraintSet()
   private var mIsFilterVisible = false
 
+
   @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    makeFullScreen()
+    sendEventToRN("oncreate")
     setContentView(R.layout.photo_editor_view)
     initViews()
 
@@ -149,6 +158,15 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
       })
 //      .placeholder(drawable)
       .into(mPhotoEditorView!!.source);
+  }
+
+  private fun sendEventToRN(name: String) {
+    val reactInstanceManager: ReactInstanceManager = (applicationContext as ReactApplication).reactNativeHost.reactInstanceManager
+    val reactContext: ReactContext? = reactInstanceManager.currentReactContext
+    val params = Arguments.createMap()
+    params.putString("data", name)
+
+    reactContext?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)?.emit("EVENT_BARONA", params)
   }
 
   private fun showLoading(message: String) {
@@ -342,6 +360,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   }
 
   private fun onCancel() {
+    sendEventToRN("on cancel")
     val intent = Intent()
     setResult(ResponseCode.RESULT_CANCELED, intent)
     finish()
@@ -352,8 +371,10 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   }
 
   override fun onToolSelected(toolType: ToolType) {
+    sendEventToRN("on tool selected")
     when (toolType) {
       ToolType.SHAPE -> {
+        sendEventToRN(" on shape")
         mPhotoEditor!!.setBrushDrawingMode(true)
         mShapeBuilder = ShapeBuilder()
         mPhotoEditor!!.setShape(mShapeBuilder)
@@ -361,6 +382,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
         showBottomSheetDialogFragment(mShapeBSFragment)
       }
       ToolType.TEXT -> {
+        sendEventToRN("on text")
         val textEditorDialogFragment = TextEditorDialogFragment.show(this)
         textEditorDialogFragment.setOnTextEditorListener { inputText: String?, colorCode: Int ->
           val styleBuilder = TextStyleBuilder()
@@ -370,10 +392,12 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
         }
       }
       ToolType.ERASER -> {
+        sendEventToRN("on erase")
         mPhotoEditor!!.brushEraser()
         mTxtCurrentTool!!.setText(R.string.label_eraser_mode)
       }
       ToolType.FILTER -> {
+        sendEventToRN("on filter")
         mTxtCurrentTool!!.setText(R.string.label_filter)
         showFilter(true)
       }
@@ -416,6 +440,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   }
 
   override fun onBackPressed() {
+    sendEventToRN("on back")
     if (mIsFilterVisible) {
       showFilter(false)
       mTxtCurrentTool!!.setText(R.string.app_name)
