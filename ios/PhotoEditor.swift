@@ -45,12 +45,12 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
         }
     }
     
+    func onZLImageControllerAction(_ actionType: String) {
+        self.callback("ON_ZLImageController_ACTION", "\(actionType)")
+    }
+    
     func onCancel() {
         self.reject("USER_CANCELLED", "User has cancelled", nil)
-    }
-
-    func onClip() {
-        self.callback("USER_CLIP", "User has clipped", nil)
     }
     
     private func setConfiguration(options: NSDictionary, callback:@escaping RCTResponseSenderBlock, resolve:@escaping RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void{
