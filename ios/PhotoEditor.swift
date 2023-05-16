@@ -45,6 +45,10 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
         }
     }
     
+    func onZLImageControllerAction(actionType: ZLEditImageControllerActionType) {
+        self.callback(actionType: actionType)
+    }
+    
     func onCancel() {
         self.reject("USER_CANCELLED", "User has cancelled", nil)
     }
