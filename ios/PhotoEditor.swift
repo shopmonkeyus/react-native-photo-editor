@@ -25,7 +25,7 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
     var resolve: RCTPromiseResolveBlock!
     var reject: RCTPromiseRejectBlock!
     
-    @objc(open:withResolver:withRejecter:)
+    @objc(open:callback:withResolver:withRejecter:)
     func open(options: NSDictionary, callback:@escaping RCTResponseSenderBlock, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
         
         // handle path
@@ -43,6 +43,10 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
         } reject: {_ in
             reject("LOAD_IMAGE_FAILED", "Load image failed: " + path, nil)
         }
+    }
+    
+    func onZLImageControllerAction(actionType: ZLEditImageControllerActionType) {
+        self.callback(actionType: actionType)
     }
     
     func onCancel() {

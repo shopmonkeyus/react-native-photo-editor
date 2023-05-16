@@ -7,7 +7,7 @@
   return NO;
 }
 RCT_EXTERN_METHOD(open:(NSDictionary *)options
-                 callback: (RCTResponseSenderBlock)callback
+                 callback:(RCTResponseSenderBlock)callback
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 

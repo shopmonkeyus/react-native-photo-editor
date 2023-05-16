@@ -26,14 +26,22 @@
 
 import UIKit
 
+public enum ZLEditImageControllerActionType {
+    case drawAction
+    case stickersAction
+    case textAction
+    case doneAction
+    case closeAction
+    case onCancelAction
+    case onClipAction
+}
+
 public protocol ZLEditImageControllerDelegate: class {
-    func onCancel()
-    func onClip()
+    func onZLImageControllerAction(_ actionType: ZLEditImageControllerActionType)
 }
 
 extension ZLEditImageControllerDelegate {
-    func onCancel() { }
-    func onClip() { }
+    func onZLImageControllerAction(_ actionType: ZLEditImageControllerActionType) { }
 }
 
 public class ZLEditImageModel: NSObject {
@@ -598,7 +606,7 @@ public class ZLEditImageViewController: UIViewController {
     }
     
     @objc func cancelBtnClick() {
-        ZLEditImageViewController.delegate?.onCancel()
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.onCancelAction)
         self.dismiss(animated: self.animateDismiss, completion: nil)
     }
     
@@ -618,7 +626,7 @@ public class ZLEditImageViewController: UIViewController {
     func clipBtnClick() {
         let currentEditImage = self.buildImage()
         
-        ZLEditImageViewController.delegate?.onClip()
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.onClipAction)
 
         let vc = ZLClipImageViewController(image: currentEditImage, editRect: self.editRect, angle: self.angle, selectRatio: self.selectRatio)
         let rect = self.scrollView.convert(self.containerView.frame, to: self.view)
