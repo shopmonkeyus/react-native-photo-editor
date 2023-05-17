@@ -25,6 +25,15 @@
 //  THE SOFTWARE.
 
 import UIKit
+public enum ZLEditImageControllerActionType: String {
+    case drawAction
+    case stickersAction
+    case textAction
+    case doneAction
+    case closeAction
+    case onCancelAction
+    case onClipAction
+}
 
 public enum ZLEditImageControllerActionType {
     case drawAction
@@ -37,7 +46,7 @@ public enum ZLEditImageControllerActionType {
 }
 
 public protocol ZLEditImageControllerDelegate {
-    func onZLImageControllerAction(_ actionType: String)
+    func onZLImageControllerAction(_ actionType: ZLEditImageControllerActionType)
 }
 
 extension ZLEditImageControllerDelegate {
@@ -626,7 +635,7 @@ public class ZLEditImageViewController: UIViewController {
     func clipBtnClick() {
         let currentEditImage = self.buildImage()
         
-        ZLEditImageViewController.delegate?.onZLImageControllerAction("onClipAction")
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.onClipAction)
 
         let vc = ZLClipImageViewController(image: currentEditImage, editRect: self.editRect, angle: self.angle, selectRatio: self.selectRatio)
         let rect = self.scrollView.convert(self.containerView.frame, to: self.view)
