@@ -85,7 +85,6 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    sendEventToRN("oncreate")
     setContentView(R.layout.photo_editor_view)
     initViews()
 
@@ -261,6 +260,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
       }
 
       R.id.btnSave -> {
+
         saveImage()
       }
 
@@ -289,6 +289,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
 
       mPhotoEditor!!.saveAsFile(file.absolutePath, object : OnSaveListener {
         override fun onSuccess(@NonNull imagePath: String) {
+          sendEventToRN("Done")
           hideLoading()
           val intent = Intent()
           intent.putExtra("path", imagePath)
@@ -355,7 +356,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   }
 
   private fun onCancel() {
-    sendEventToRN("on cancel")
+    sendEventToRN("Cancel")
     val intent = Intent()
     setResult(ResponseCode.RESULT_CANCELED, intent)
     finish()
@@ -366,10 +367,9 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   }
 
   override fun onToolSelected(toolType: ToolType) {
-    sendEventToRN("on tool selected")
     when (toolType) {
       ToolType.SHAPE -> {
-        sendEventToRN(" on shape")
+        sendEventToRN("Draw")
         mPhotoEditor!!.setBrushDrawingMode(true)
         mShapeBuilder = ShapeBuilder()
         mPhotoEditor!!.setShape(mShapeBuilder)
@@ -378,7 +378,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
       }
 
       ToolType.TEXT -> {
-        sendEventToRN("on text")
+        sendEventToRN("Text")
         val textEditorDialogFragment = TextEditorDialogFragment.show(this)
         textEditorDialogFragment.setOnTextEditorListener { inputText: String?, colorCode: Int ->
           val styleBuilder = TextStyleBuilder()
@@ -389,18 +389,20 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
       }
 
       ToolType.ERASER -> {
-        sendEventToRN("on erase")
         mPhotoEditor!!.brushEraser()
         mTxtCurrentTool!!.setText(R.string.label_eraser_mode)
       }
 
       ToolType.FILTER -> {
-        sendEventToRN("on filter")
         mTxtCurrentTool!!.setText(R.string.label_filter)
         showFilter(true)
       }
 
-      ToolType.STICKER -> showBottomSheetDialogFragment(mStickerFragment)
+      ToolType.STICKER ->
+      {
+        sendEventToRN("Stickers")
+        showBottomSheetDialogFragment(mStickerFragment)
+      }
     }
   }
 
@@ -436,7 +438,6 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   }
 
   override fun onBackPressed() {
-    sendEventToRN("on back")
     if (mIsFilterVisible) {
       showFilter(false)
       mTxtCurrentTool!!.setText(R.string.app_name)
