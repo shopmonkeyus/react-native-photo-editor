@@ -24,6 +24,7 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
     
     var resolve: RCTPromiseResolveBlock!
     var reject: RCTPromiseRejectBlock!
+    var hasListeners = false
 
     override func supportedEvents() -> [String] {
         return ["EVENT_BARONA"]
