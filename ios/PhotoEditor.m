@@ -1,6 +1,8 @@
+#import <Foundation/Foundation.h>
 #import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
 
-@interface RCT_EXTERN_MODULE(PhotoEditor, NSObject)
+@interface RCT_EXTERN_MODULE(PhotoEditor, RCTEventEmitter)
 
 RCT_EXTERN_METHOD(open:(NSDictionary *)options
                  withResolver:(RCTPromiseResolveBlock)resolve

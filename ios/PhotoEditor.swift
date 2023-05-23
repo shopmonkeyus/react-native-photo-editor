@@ -10,6 +10,7 @@ import UIKit
 import Photos
 import SDWebImage
 import AVFoundation
+import React
 //import ZLImageEditor
 
 public enum ImageLoad: Error {
@@ -17,16 +18,39 @@ public enum ImageLoad: Error {
 }
 
 @objc(PhotoEditor)
-class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
+class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
     var window: UIWindow?
-    var bridge: RCTBridge!
+    // var bridge: RCTBridge!
     
     var resolve: RCTPromiseResolveBlock!
     var reject: RCTPromiseRejectBlock!
+
+    override func supportedEvents() -> [String] {
+        return ["EVENT_BARONA"]
+    }
+    
+    override func startObserving() {
+        print("startObserving")
+        hasListeners = true
+    }
+    
+    override func stopObserving() {
+        print("stopObserving")
+        hasListeners = false
+    }
+
+    func sendEventToReactNative() {
+        print("sendEvent")
+        print(hasListeners)
+        
+        if (hasListeners) {
+            self.sendEvent(withName: "EVENT_BARONA", body: "hello")
+        }
+    }
     
     @objc(open:withResolver:withRejecter:)
     func open(options: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
-        
+        sendEventToReactNative()
         // handle path
         guard let path = options["path"] as? String else {
             reject("DONT_FIND_IMAGE", "Dont find image", nil)
