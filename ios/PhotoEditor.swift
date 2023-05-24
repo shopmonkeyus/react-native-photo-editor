@@ -69,7 +69,7 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
     }
     
     func onCancel() {
-        sendEventToReactNative("Cancel")
+        sendEventToReactNative(eventName: "Cancel")
         self.reject("USER_CANCELLED", "User has cancelled", nil)
     }
     
@@ -107,7 +107,7 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
                 
                 do {
                     try resImage.pngData()?.write(to: destinationPath)
-                    sendEventToReactNative("Done")
+                    self?.sendEventToReactNative(eventName: "Done")
                     self?.resolve(destinationPath.absoluteString)
                 } catch {
                     debugPrint("writing file error", error)
