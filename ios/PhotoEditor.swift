@@ -40,18 +40,17 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
         hasListeners = false
     }
 
-    func sendEventToReactNative() {
+    func sendEventToReactNative(eventName: String) {
         print("sendEvent")
         print(hasListeners)
         
         if (hasListeners) {
-            self.sendEvent(withName: "EVENT_BARONA", body: "hello")
+            self.sendEvent(withName: "EVENT_BARONA", body: eventName)
         }
     }
     
     @objc(open:withResolver:withRejecter:)
     func open(options: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
-        sendEventToReactNative()
         // handle path
         guard let path = options["path"] as? String else {
             reject("DONT_FIND_IMAGE", "Dont find image", nil)
@@ -70,6 +69,7 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
     }
     
     func onCancel() {
+        sendEventToReactNative("Cancel")
         self.reject("USER_CANCELLED", "User has cancelled", nil)
     }
     
@@ -107,6 +107,7 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
                 
                 do {
                     try resImage.pngData()?.write(to: destinationPath)
+                    sendEventToReactNative("Done")
                     self?.resolve(destinationPath.absoluteString)
                 } catch {
                     debugPrint("writing file error", error)
