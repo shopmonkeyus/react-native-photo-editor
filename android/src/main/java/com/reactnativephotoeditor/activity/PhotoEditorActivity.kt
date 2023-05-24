@@ -37,8 +37,16 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.facebook.react.ReactApplication
+import com.facebook.react.ReactInstanceManager
+import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
+import com.reactnativephotoeditor.PhotoEditorModule
 import com.reactnativephotoeditor.R
 import com.reactnativephotoeditor.activity.StickerFragment.StickerListener
 import com.reactnativephotoeditor.activity.constant.ResponseCode
@@ -55,8 +63,8 @@ import java.io.File
 
 
 open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnClickListener,
-  PropertiesBSFragment.Properties, ShapeBSFragment.Properties, StickerListener,
-  OnItemSelected, FilterListener {
+  PropertiesBSFragment.Properties, ShapeBSFragment.Properties, StickerListener, OnItemSelected,
+  FilterListener {
   private var mPhotoEditor: PhotoEditor? = null
   private var mProgressDialog: ProgressDialog? = null
   private var mPhotoEditorView: PhotoEditorView? = null
@@ -73,20 +81,19 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   private val mConstraintSet = ConstraintSet()
   private var mIsFilterVisible = false
 
+
   @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    makeFullScreen()
     setContentView(R.layout.photo_editor_view)
     initViews()
 
     //intern
     val value = intent.extras
     val path = value?.getString("path")
-    val stickers =
-      value?.getStringArrayList("stickers")?.plus(
-        assets.list("Stickers")!!
-          .map { item -> "/android_asset/Stickers/$item" }) as ArrayList<String>
+    val stickers = value?.getStringArrayList("stickers")?.plus(
+      assets.list("Stickers")!!
+        .map { item -> "/android_asset/Stickers/$item" }) as ArrayList<String>
 //    println("stickers: $stickers ${stickers.size}")
 //    for (stick in stickers) {
 //      print("stick: $stickers")
@@ -120,15 +127,9 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
     mPhotoEditor?.setOnPhotoEditorListener(this)
 //    val drawable = Drawable.cre
 
-    Glide
-      .with(this)
-      .load(path)
-      .listener(object : RequestListener<Drawable> {
+    Glide.with(this).load(path).listener(object : RequestListener<Drawable> {
         override fun onLoadFailed(
-          e: GlideException?,
-          model: Any?,
-          target: Target<Drawable>?,
-          isFirstResource: Boolean
+          e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean
         ): Boolean {
           val intent = Intent()
           intent.putExtra("path", path)
@@ -151,6 +152,17 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
       .into(mPhotoEditorView!!.source);
   }
 
+  private fun sendEventToRN(name: String) {
+    val reactInstanceManager: ReactInstanceManager =
+      (applicationContext as ReactApplication).reactNativeHost.reactInstanceManager
+
+    val params = Arguments.createMap()
+    params.putString(EVENT_EMITTER_DATA, name)
+
+    reactInstanceManager.currentReactContext?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+      ?.emit(EVENT_EMITTER_EVENT, params)
+  }
+
   private fun showLoading(message: String) {
     mProgressDialog = ProgressDialog(this)
     mProgressDialog!!.setMessage(message)
@@ -170,8 +182,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
       ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
     if (!isGranted) {
       ActivityCompat.requestPermissions(
-        this, arrayOf(permission),
-        READ_WRITE_STORAGE
+        this, arrayOf(permission), READ_WRITE_STORAGE
       )
     }
   }
@@ -179,8 +190,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   private fun makeFullScreen() {
     requestWindowFeature(Window.FEATURE_NO_TITLE)
     window.setFlags(
-      WindowManager.LayoutParams.FLAG_FULLSCREEN,
-      WindowManager.LayoutParams.FLAG_FULLSCREEN
+      WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN
     )
   }
 
@@ -244,12 +254,16 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
       R.id.imgUndo -> {
         mPhotoEditor!!.undo()
       }
+
       R.id.imgRedo -> {
         mPhotoEditor!!.redo()
       }
+
       R.id.btnSave -> {
+
         saveImage()
       }
+
       R.id.imgClose -> {
         onBackPressed()
       }
@@ -263,8 +277,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   private fun saveImage() {
     val fileName = System.currentTimeMillis().toString() + ".png"
     val hasStoragePermission = ContextCompat.checkSelfPermission(
-      this,
-      Manifest.permission.WRITE_EXTERNAL_STORAGE
+      this, Manifest.permission.WRITE_EXTERNAL_STORAGE
     ) == PackageManager.PERMISSION_GRANTED
     if (hasStoragePermission || isSdkHigherThan28()) {
       showLoading("Saving...")
@@ -276,6 +289,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
 
       mPhotoEditor!!.saveAsFile(file.absolutePath, object : OnSaveListener {
         override fun onSuccess(@NonNull imagePath: String) {
+          sendEventToRN("Done")
           hideLoading()
           val intent = Intent()
           intent.putExtra("path", imagePath)
@@ -290,8 +304,8 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
           } else {
             mPhotoEditorView?.let {
               val snackBar = Snackbar.make(
-                it, R.string.save_error,
-                Snackbar.LENGTH_SHORT)
+                it, R.string.save_error, Snackbar.LENGTH_SHORT
+              )
               snackBar.setBackgroundTint(Color.WHITE)
               snackBar.setActionTextColor(Color.BLACK)
               snackBar.setAction("Ok", null).show()
@@ -342,6 +356,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   }
 
   private fun onCancel() {
+    sendEventToRN("Cancel")
     val intent = Intent()
     setResult(ResponseCode.RESULT_CANCELED, intent)
     finish()
@@ -354,13 +369,16 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   override fun onToolSelected(toolType: ToolType) {
     when (toolType) {
       ToolType.SHAPE -> {
+        sendEventToRN("Draw")
         mPhotoEditor!!.setBrushDrawingMode(true)
         mShapeBuilder = ShapeBuilder()
         mPhotoEditor!!.setShape(mShapeBuilder)
         mTxtCurrentTool!!.setText(R.string.label_shape)
         showBottomSheetDialogFragment(mShapeBSFragment)
       }
+
       ToolType.TEXT -> {
+        sendEventToRN("Text")
         val textEditorDialogFragment = TextEditorDialogFragment.show(this)
         textEditorDialogFragment.setOnTextEditorListener { inputText: String?, colorCode: Int ->
           val styleBuilder = TextStyleBuilder()
@@ -369,15 +387,22 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
           mTxtCurrentTool!!.setText(R.string.label_text)
         }
       }
+
       ToolType.ERASER -> {
         mPhotoEditor!!.brushEraser()
         mTxtCurrentTool!!.setText(R.string.label_eraser_mode)
       }
+
       ToolType.FILTER -> {
         mTxtCurrentTool!!.setText(R.string.label_filter)
         showFilter(true)
       }
-      ToolType.STICKER -> showBottomSheetDialogFragment(mStickerFragment)
+
+      ToolType.STICKER ->
+      {
+        sendEventToRN("Stickers")
+        showBottomSheetDialogFragment(mStickerFragment)
+      }
     }
   }
 
@@ -394,17 +419,14 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
     if (isVisible) {
       mConstraintSet.clear(mRvFilters!!.id, ConstraintSet.START)
       mConstraintSet.connect(
-        mRvFilters!!.id, ConstraintSet.START,
-        ConstraintSet.PARENT_ID, ConstraintSet.START
+        mRvFilters!!.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START
       )
       mConstraintSet.connect(
-        mRvFilters!!.id, ConstraintSet.END,
-        ConstraintSet.PARENT_ID, ConstraintSet.END
+        mRvFilters!!.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END
       )
     } else {
       mConstraintSet.connect(
-        mRvFilters!!.id, ConstraintSet.START,
-        ConstraintSet.PARENT_ID, ConstraintSet.END
+        mRvFilters!!.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.END
       )
       mConstraintSet.clear(mRvFilters!!.id, ConstraintSet.END)
     }
@@ -430,5 +452,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
     private val TAG = PhotoEditorActivity::class.java.simpleName
     const val PINCH_TEXT_SCALABLE_INTENT_KEY = "PINCH_TEXT_SCALABLE"
     const val READ_WRITE_STORAGE = 52
+    const val EVENT_EMITTER_DATA = "data"
+    const val EVENT_EMITTER_EVENT = "EVENT_BARONA"
   }
 }

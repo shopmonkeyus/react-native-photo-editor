@@ -1,6 +1,6 @@
 //
 //  ZLImageEditor.swift
-//  ZLImageEditor
+//  ZLImageEditorConfiguration
 //
 //  Created by long on 2020/9/8.
 //
