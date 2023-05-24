@@ -16,7 +16,7 @@ export type ErrorCode =
 type PhotoEditorType = {
   open(option: Options): Promise<String>;
   addListener(event: string, callback: void): void;
-  removeListeners(): void;
+  removeListeners(event: string): void;
 };
 
 const { PhotoEditor } = NativeModules;

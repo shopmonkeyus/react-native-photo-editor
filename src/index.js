@@ -31,21 +31,17 @@ exportObject = {
     });
   },
   addListener: (event, callback) => {
-    console.log('PHOTO EDITOR addListener')
     subscription = eventEmitter.addListener(event, data => {
-      console.log('FROM addListener');
       callback(data);
     })
   },
-  removeListeners: (event) => {
-    console.log('PHOTO EDITOR removeListeners')
-    
+  removeListeners: (event) => {    
     if (subscription) {
       subscription.remove()
     }
     
     eventEmitter.removeAllListeners(event)
-  }
+  },
 };
 
 export default exportObject;
