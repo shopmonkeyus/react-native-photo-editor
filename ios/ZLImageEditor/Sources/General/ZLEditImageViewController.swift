@@ -26,13 +26,11 @@
 
 import UIKit
 public enum ZLEditImageControllerActionType: String {
-    case drawAction
-    case stickersAction
-    case textAction
-    case doneAction
-    case closeAction
-    case onCancelAction
-    case onClipAction
+    case Draw
+    case Stickers
+    case Text
+    case Clip
+    case Cancel
 }
 
 public protocol ZLEditImageControllerDelegate {
@@ -605,12 +603,12 @@ public class ZLEditImageViewController: UIViewController {
     }
     
     @objc func cancelBtnClick() {
-        ZLEditImageViewController.delegate?.onZLImageControllerAction(.onCancelAction)
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.Cancel)
         self.dismiss(animated: self.animateDismiss, completion: nil)
     }
     
     func drawBtnClick() {
-        ZLEditImageViewController.delegate?.onZLImageControllerAction(.drawAction)
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.Draw)
         let isSelected = self.selectedTool != .draw
         if isSelected {
             self.selectedTool = .draw
@@ -626,7 +624,7 @@ public class ZLEditImageViewController: UIViewController {
     func clipBtnClick() {
         let currentEditImage = self.buildImage()
         
-        ZLEditImageViewController.delegate?.onZLImageControllerAction(.onClipAction)
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.Clip)
 
         let vc = ZLClipImageViewController(image: currentEditImage, editRect: self.editRect, angle: self.angle, selectRatio: self.selectRatio)
         let rect = self.scrollView.convert(self.containerView.frame, to: self.view)
@@ -660,14 +658,14 @@ public class ZLEditImageViewController: UIViewController {
     }
     
     func imageStickerBtnClick() {
-        ZLEditImageViewController.delegate?.onZLImageControllerAction(.stickersAction)
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.Stickers)
         ZLImageEditorConfiguration.default().imageStickerContainerView?.show(in: self.view)
         self.setToolView(show: false)
         self.imageStickerContainerIsHidden = false
     }
     
     func textStickerBtnClick() {
-        ZLEditImageViewController.delegate?.onZLImageControllerAction(.textAction)
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.Text)
         self.showInputTextVC { [weak self] (text, textColor, bgColor) in
             self?.addTextStickersView(text, textColor: textColor, bgColor: bgColor)
         }
