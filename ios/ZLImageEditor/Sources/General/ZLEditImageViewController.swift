@@ -610,6 +610,7 @@ public class ZLEditImageViewController: UIViewController {
     }
     
     func drawBtnClick() {
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.drawAction)
         let isSelected = self.selectedTool != .draw
         if isSelected {
             self.selectedTool = .draw
@@ -659,12 +660,14 @@ public class ZLEditImageViewController: UIViewController {
     }
     
     func imageStickerBtnClick() {
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.stickersAction)
         ZLImageEditorConfiguration.default().imageStickerContainerView?.show(in: self.view)
         self.setToolView(show: false)
         self.imageStickerContainerIsHidden = false
     }
     
     func textStickerBtnClick() {
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.textAction)
         self.showInputTextVC { [weak self] (text, textColor, bgColor) in
             self?.addTextStickersView(text, textColor: textColor, bgColor: bgColor)
         }
