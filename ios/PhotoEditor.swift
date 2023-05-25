@@ -48,7 +48,11 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
             self.sendEvent(withName: "EVENT_BARONA", body: eventName)
         }
     }
-    
+
+    func onZLImageControllerAction(_ actionType: ZLEditImageControllerActionType) {
+        self.sendEventToReactNative(eventName: actionType.rawValue)
+    }
+
     @objc(open:withResolver:withRejecter:)
     func open(options: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
         // handle path
