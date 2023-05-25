@@ -18,8 +18,7 @@ public enum ImageLoad: Error {
 }
 
 @objc(PhotoEditor)
-class PhotoEditor: RCTEventEmitter {
-    
+class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
     var window: UIWindow?
     // var bridge: RCTBridge!
     
@@ -44,7 +43,10 @@ class PhotoEditor: RCTEventEmitter {
     func sendEventToReactNative(eventName: String) {
         print("sendEvent")
         print(hasListeners)
-        self.sendEvent(withName: "EVENT_BARONA", body: eventName)
+        
+        if (hasListeners) {
+            self.sendEvent(withName: "EVENT_BARONA", body: eventName)
+        }
     }
     
     @objc(open:withResolver:withRejecter:)

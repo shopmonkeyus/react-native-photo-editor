@@ -13,8 +13,12 @@ export type ErrorCode =
   | 'DONT_FIND_IMAGE'
   | 'ERROR_UNKNOW';
 
+type PhotoEditorCallback = (data: string) => void;
+
 type PhotoEditorType = {
   open(option: Options): Promise<String>;
+  addListener(event: string, callback: PhotoEditorCallback): void;
+  removeListeners(event: string): void;
 };
 
 const { PhotoEditor } = NativeModules;
