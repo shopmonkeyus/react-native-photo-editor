@@ -10,6 +10,7 @@ import UIKit
 import Photos
 import SDWebImage
 import AVFoundation
+import React
 //import ZLImageEditor
 
 public enum ImageLoad: Error {
@@ -17,16 +18,43 @@ public enum ImageLoad: Error {
 }
 
 @objc(PhotoEditor)
-class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
+class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
     var window: UIWindow?
-    var bridge: RCTBridge!
+    // var bridge: RCTBridge!
     
     var resolve: RCTPromiseResolveBlock!
     var reject: RCTPromiseRejectBlock!
+    var hasListeners = false
+
+    override func supportedEvents() -> [String] {
+        return ["EVENT_BARONA"]
+    }
     
+    override func startObserving() {
+        print("startObserving")
+        hasListeners = true
+    }
+    
+    override func stopObserving() {
+        print("stopObserving")
+        hasListeners = false
+    }
+
+    func sendEventToReactNative(eventName: String) {
+        print("sendEvent")
+        print(hasListeners)
+        
+        if (hasListeners) {
+            self.sendEvent(withName: "EVENT_BARONA", body: eventName)
+        }
+    }
+
+    func onZLImageControllerAction(_ actionType: ZLEditImageControllerActionType) {
+        self.sendEventToReactNative(eventName: actionType.rawValue)
+    }
+
     @objc(open:withResolver:withRejecter:)
     func open(options: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
-        
         // handle path
         guard let path = options["path"] as? String else {
             reject("DONT_FIND_IMAGE", "Dont find image", nil)
@@ -45,6 +73,7 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
     }
     
     func onCancel() {
+        sendEventToReactNative(eventName: "Cancel")
         self.reject("USER_CANCELLED", "User has cancelled", nil)
     }
     
@@ -59,8 +88,8 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
         
         //Config
         ZLImageEditorConfiguration.default().editDoneBtnBgColor = UIColor(red:255/255.0, green:238/255.0, blue:101/255.0, alpha:1.0)
-
-        ZLImageEditorConfiguration.default().editImageTools = [.draw, .clip, .filter, .imageSticker, .textSticker]
+        // ZLImageEditorConfiguration.default().editImageTools = [.draw, .clip, .filter, .imageSticker, .textSticker]
+        ZLImageEditorConfiguration.default().editImageTools = [.draw, .clip, .imageSticker, .textSticker]
         
         //Filters Lut
         do {
@@ -82,6 +111,7 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
                 
                 do {
                     try resImage.pngData()?.write(to: destinationPath)
+                    self?.sendEventToReactNative(eventName: "Done")
                     self?.resolve(destinationPath.absoluteString)
                 } catch {
                     debugPrint("writing file error", error)

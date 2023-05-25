@@ -25,13 +25,20 @@
 //  THE SOFTWARE.
 
 import UIKit
+public enum ZLEditImageControllerActionType: String {
+    case Draw
+    case Stickers
+    case Text
+    case Clip
+    case Cancel
+}
 
-public protocol ZLEditImageControllerDelegate: class {
-    func onCancel()
+public protocol ZLEditImageControllerDelegate {
+    func onZLImageControllerAction(_ actionType: ZLEditImageControllerActionType)
 }
 
 extension ZLEditImageControllerDelegate {
-    func onCancel() { }
+    func onZLImageControllerAction(_ actionType: ZLEditImageControllerActionType) { }
 }
 
 public class ZLEditImageModel: NSObject {
@@ -274,19 +281,19 @@ public class ZLEditImageViewController: UIViewController {
         }
         self.shouldLayout = false
         zl_debugPrint("edit image layout subviews")
+        
         var insets = UIEdgeInsets.zero
         if #available(iOS 11.0, *) {
             insets = self.view.safeAreaInsets
         }
         
-        self.scrollView.frame = self.view.bounds
+        self.scrollView.frame = CGRect(x: 0, y: insets.top + 50, width: self.view.frame.width, height: self.view.frame.height - 140 - insets.bottom - insets.top - 50)
         self.resetContainerViewFrame()
         
-        self.topShadowView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: 150)
-        
+        self.topShadowView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: insets.top + 50)
         self.topShadowLayer.frame = self.topShadowView.bounds
         let iconBackSize = 32.0
-        self.cancelBtn.frame = CGRect(x: self.containerView.bounds.width - iconBackSize - 20.0 , y: insets.top + 24, width: iconBackSize, height: iconBackSize)
+        self.cancelBtn.frame = CGRect(x: self.view.frame.width - iconBackSize - 20.0 , y: insets.top, width: iconBackSize, height: iconBackSize)
         
         
         self.bottomShadowView.frame = CGRect(x: 0, y: self.view.frame.height-140-insets.bottom, width: self.view.frame.width, height: 140+insets.bottom)
@@ -304,6 +311,7 @@ public class ZLEditImageViewController: UIViewController {
         let doneBtnH = ZLImageEditorLayout.bottomToolBtnH
         let doneBtnW = localLanguageTextValue(.editFinish).boundingRect(font: ZLImageEditorLayout.bottomToolTitleFont, limitSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: doneBtnH)).width + 20
         self.doneBtn.frame = CGRect(x: self.view.frame.width-20-doneBtnW, y: toolY-2, width: doneBtnW, height: doneBtnH)
+        self.doneBtn.backgroundColor = .blue
         
         self.editToolCollectionView.frame = CGRect(x: 20, y: toolY, width: self.view.bounds.width - 20 - 20 - doneBtnW - 20, height: 30)
         
@@ -381,9 +389,15 @@ public class ZLEditImageViewController: UIViewController {
     }
     
     func setupUI() {
+        var insets = UIEdgeInsets.zero
+        
+        if #available(iOS 11.0, *) {
+            insets = self.view.safeAreaInsets
+        }
+        
         self.view.backgroundColor = .black
         
-        self.scrollView = UIScrollView()
+        self.scrollView = UIScrollView(frame: CGRect(x: 0, y: 300 + insets.top, width: self.view.frame.width, height: self.view.frame.height - 300 - insets.bottom))
         self.scrollView.backgroundColor = .black
         self.scrollView.minimumZoomScale = 1
         self.scrollView.maximumZoomScale = 3
@@ -408,8 +422,8 @@ public class ZLEditImageViewController: UIViewController {
         self.stickersContainer = UIView()
         self.containerView.addSubview(self.stickersContainer)
         
-        let color1 = UIColor.black.withAlphaComponent(0.35).cgColor
-        let color2 = UIColor.black.withAlphaComponent(0).cgColor
+        let color1 = UIColor.black.withAlphaComponent(0.8).cgColor
+        let color2 = UIColor.black.withAlphaComponent(0.8).cgColor
         self.topShadowView = UIView()
         self.view.addSubview(self.topShadowView)
         
@@ -487,7 +501,7 @@ public class ZLEditImageViewController: UIViewController {
         self.filterCollectionView.dataSource = self
         self.filterCollectionView.isHidden = true
         self.filterCollectionView.showsHorizontalScrollIndicator = false
-        self.bottomShadowView.addSubview(self.filterCollectionView)
+        // self.bottomShadowView.addSubview(self.filterCollectionView)
         
         ZLFilterImageCell.zl_register(self.filterCollectionView)
         
@@ -589,11 +603,12 @@ public class ZLEditImageViewController: UIViewController {
     }
     
     @objc func cancelBtnClick() {
-        ZLEditImageViewController.delegate?.onCancel()
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.Cancel)
         self.dismiss(animated: self.animateDismiss, completion: nil)
     }
     
     func drawBtnClick() {
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.Draw)
         let isSelected = self.selectedTool != .draw
         if isSelected {
             self.selectedTool = .draw
@@ -609,6 +624,8 @@ public class ZLEditImageViewController: UIViewController {
     func clipBtnClick() {
         let currentEditImage = self.buildImage()
         
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.Clip)
+
         let vc = ZLClipImageViewController(image: currentEditImage, editRect: self.editRect, angle: self.angle, selectRatio: self.selectRatio)
         let rect = self.scrollView.convert(self.containerView.frame, to: self.view)
         vc.presentAnimateFrame = rect
@@ -641,12 +658,14 @@ public class ZLEditImageViewController: UIViewController {
     }
     
     func imageStickerBtnClick() {
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.Stickers)
         ZLImageEditorConfiguration.default().imageStickerContainerView?.show(in: self.view)
         self.setToolView(show: false)
         self.imageStickerContainerIsHidden = false
     }
     
     func textStickerBtnClick() {
+        ZLEditImageViewController.delegate?.onZLImageControllerAction(.Text)
         self.showInputTextVC { [weak self] (text, textColor, bgColor) in
             self?.addTextStickersView(text, textColor: textColor, bgColor: bgColor)
         }
