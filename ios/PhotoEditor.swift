@@ -10,6 +10,7 @@ import UIKit
 import Photos
 import SDWebImage
 import AVFoundation
+import React
 //import ZLImageEditor
 
 public enum ImageLoad: Error {
@@ -17,17 +18,37 @@ public enum ImageLoad: Error {
 }
 
 @objc(PhotoEditor)
-class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
-    var window: UIWindow?
-    var bridge: RCTBridge!
+class PhotoEditor: RCTEventEmitter {
     
-    var callback: RCTResponseSenderBlock!
+    var window: UIWindow?
+    // var bridge: RCTBridge!
+    
     var resolve: RCTPromiseResolveBlock!
     var reject: RCTPromiseRejectBlock!
+    var hasListeners = false
+
+    override func supportedEvents() -> [String] {
+        return ["EVENT_BARONA"]
+    }
     
-    @objc(open:callback:withResolver:withRejecter:)
-    func open(options: NSDictionary, callback:@escaping RCTResponseSenderBlock, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
-        
+    override func startObserving() {
+        print("startObserving")
+        hasListeners = true
+    }
+    
+    override func stopObserving() {
+        print("stopObserving")
+        hasListeners = false
+    }
+
+    func sendEventToReactNative(eventName: String) {
+        print("sendEvent")
+        print(hasListeners)
+        self.sendEvent(withName: "EVENT_BARONA", body: eventName)
+    }
+    
+    @objc(open:withResolver:withRejecter:)
+    func open(options: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void {
         // handle path
         guard let path = options["path"] as? String else {
             reject("DONT_FIND_IMAGE", "Dont find image", nil)
@@ -37,7 +58,7 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
         getUIImage(url: path) { image in
             DispatchQueue.main.async {
                 //  set config
-                self.setConfiguration(options: options, callback: callback, resolve: resolve, reject: reject)
+                self.setConfiguration(options: options, resolve: resolve, reject: reject)
                 self.presentController(image: image)
             }
         } reject: {_ in
@@ -45,16 +66,12 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
         }
     }
     
-    func onZLImageControllerAction(_ actionType: String) {
-        self.callback("ON_ZLImageController_ACTION", "\(actionType)")
-    }
-    
     func onCancel() {
+        sendEventToReactNative(eventName: "Cancel")
         self.reject("USER_CANCELLED", "User has cancelled", nil)
     }
     
-    private func setConfiguration(options: NSDictionary, callback:@escaping RCTResponseSenderBlock, resolve:@escaping RCTPromiseResolveBlock, reject:@escaping RCTPromiseRejectBlock) -> Void{
-        self.callback = callback;
+    private func setConfiguration(options: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void{
         self.resolve = resolve;
         self.reject = reject;
         
@@ -88,6 +105,7 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
                 
                 do {
                     try resImage.pngData()?.write(to: destinationPath)
+                    self?.sendEventToReactNative(eventName: "Done")
                     self?.resolve(destinationPath.absoluteString)
                 } catch {
                     debugPrint("writing file error", error)
@@ -117,6 +135,12 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
         }
     }
     
+}
+
+extension PhotoEditor: ZLEditImageControllerDelegate {
+    func onZLImageControllerAction(_ actionType: ZLEditImageControllerActionType) {
+        sendEventToReactNative(eventName: actionType.rawValue)
+    }
 }
 
 extension UIApplication {

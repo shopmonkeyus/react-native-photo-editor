@@ -35,16 +35,6 @@ public enum ZLEditImageControllerActionType: String {
     case onClipAction
 }
 
-public enum ZLEditImageControllerActionType {
-    case drawAction
-    case stickersAction
-    case textAction
-    case doneAction
-    case closeAction
-    case onCancelAction
-    case onClipAction
-}
-
 public protocol ZLEditImageControllerDelegate {
     func onZLImageControllerAction(_ actionType: ZLEditImageControllerActionType)
 }
