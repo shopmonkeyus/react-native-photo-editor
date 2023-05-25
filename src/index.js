@@ -17,7 +17,6 @@ exportObject = {
       ...defaultOptions,
       ...optionsEditor,
     };
-
     return new Promise(async (resolve, reject) => {
       try {
         const response = await PhotoEditor.open(options);
