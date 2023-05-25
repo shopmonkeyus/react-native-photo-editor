@@ -9,7 +9,7 @@ const defaultOptions = {
 };
 
 exportObject = {
-  open: (optionsEditor,customCallback) => {
+  open: (optionsEditor) => {
     const options = {
       ...defaultOptions,
       ...optionsEditor,
@@ -17,7 +17,7 @@ exportObject = {
 
     return new Promise(async (resolve, reject) => {
       try {
-        const response = await PhotoEditor.open({...options},customCallback);
+        const response = await PhotoEditor.open(options);
         if (response) {
           resolve(response);
           return true;
