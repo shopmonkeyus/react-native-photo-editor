@@ -7,6 +7,7 @@ const eventEmitter = new NativeEventEmitter(PhotoEditor);
 const defaultOptions = {
   path: '',
   stickers: [],
+  translations: ["cancel", "done", "draw", "stickers", "text"],
 };
 
 let subscription;

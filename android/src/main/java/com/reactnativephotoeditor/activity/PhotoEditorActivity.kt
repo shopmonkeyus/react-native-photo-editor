@@ -42,6 +42,7 @@ import com.facebook.react.ReactInstanceManager
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContext
+import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -75,12 +76,17 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   private var mTxtCurrentTool: TextView? = null
   private var mRvTools: RecyclerView? = null
   private var mRvFilters: RecyclerView? = null
-  private val mEditingToolsAdapter = EditingToolsAdapter(this)
+
   private val mFilterViewAdapter = FilterViewAdapter(this)
   private var mRootView: ConstraintLayout? = null
   private val mConstraintSet = ConstraintSet()
   private var mIsFilterVisible = false
 
+  private var doneText = "Done"
+  private var brushText = "Draw"
+  private var stickerText = "Arrow"
+  private var textText = "Text"
+  private var mEditingToolsAdapter: EditingToolsAdapter? = null
 
   @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,6 +100,22 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
     val stickers = value?.getStringArrayList("stickers")?.plus(
       assets.list("Stickers")!!
         .map { item -> "/android_asset/Stickers/$item" }) as ArrayList<String>
+
+    val rnTranslations = value?.getStringArrayList("translations") as ArrayList<String>
+
+    if (!rnTranslations.isNullOrEmpty() && rnTranslations.size == 5) {
+      doneText = rnTranslations[1]
+      brushText = rnTranslations[2]
+      stickerText = rnTranslations[3]
+      textText = rnTranslations[4]
+    }
+
+    mEditingToolsAdapter = EditingToolsAdapter(
+      brushText,
+      stickerText,
+      textText,
+      this)
+  
 //    println("stickers: $stickers ${stickers.size}")
 //    for (stick in stickers) {
 //      print("stick: $stickers")
@@ -114,7 +136,10 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
 
     val llmTools = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
     mRvTools!!.layoutManager = llmTools
-    mRvTools!!.adapter = mEditingToolsAdapter
+
+    if (mEditingToolsAdapter != null) {
+      mRvTools!!.adapter = mEditingToolsAdapter
+    }
 
     val llmFilters = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
     mRvFilters!!.layoutManager = llmFilters
@@ -208,6 +233,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
     val btnSave: TextView = findViewById(R.id.btnSave)
     btnSave.setOnClickListener(this)
     btnSave.setTextColor(Color.BLACK)
+    btnSave.text = doneText
 
     mPhotoEditorView = findViewById(R.id.photoEditorView)
     mTxtCurrentTool = findViewById(R.id.txtCurrentTool)
@@ -222,7 +248,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
       val styleBuilder = TextStyleBuilder()
       styleBuilder.withTextColor(newColorCode)
       mPhotoEditor!!.editText(rootView, inputText, styleBuilder)
-      mTxtCurrentTool!!.setText(R.string.label_text)
+      mTxtCurrentTool!!.setText(textText)
     }
   }
 
@@ -324,17 +350,17 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
 
   override fun onColorChanged(colorCode: Int) {
     mPhotoEditor!!.setShape(mShapeBuilder!!.withShapeColor(colorCode))
-    mTxtCurrentTool!!.setText(R.string.label_brush)
+    mTxtCurrentTool!!.setText(brushText)
   }
 
   override fun onOpacityChanged(opacity: Int) {
     mPhotoEditor!!.setShape(mShapeBuilder!!.withShapeOpacity(opacity))
-    mTxtCurrentTool!!.setText(R.string.label_brush)
+    mTxtCurrentTool!!.setText(brushText)
   }
 
   override fun onShapeSizeChanged(shapeSize: Int) {
     mPhotoEditor!!.setShape(mShapeBuilder!!.withShapeSize(shapeSize.toFloat()))
-    mTxtCurrentTool!!.setText(R.string.label_brush)
+    mTxtCurrentTool!!.setText(brushText)
   }
 
   override fun onShapePicked(shapeType: ShapeType) {
@@ -343,7 +369,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
 
   override fun onStickerClick(bitmap: Bitmap) {
     mPhotoEditor!!.addImage(bitmap)
-    mTxtCurrentTool!!.setText(R.string.label_sticker)
+    mTxtCurrentTool!!.setText(stickerText)
   }
 
   private fun showSaveDialog() {
@@ -373,7 +399,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
         mPhotoEditor!!.setBrushDrawingMode(true)
         mShapeBuilder = ShapeBuilder()
         mPhotoEditor!!.setShape(mShapeBuilder)
-        mTxtCurrentTool!!.setText(R.string.label_shape)
+        mTxtCurrentTool!!.setText(brushText)
         showBottomSheetDialogFragment(mShapeBSFragment)
       }
 
@@ -384,7 +410,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
           val styleBuilder = TextStyleBuilder()
           styleBuilder.withTextColor(colorCode)
           mPhotoEditor!!.addText(inputText, styleBuilder)
-          mTxtCurrentTool!!.setText(R.string.label_text)
+          mTxtCurrentTool!!.setText(textText)
         }
       }
 
@@ -440,7 +466,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   override fun onBackPressed() {
     if (mIsFilterVisible) {
       showFilter(false)
-      mTxtCurrentTool!!.setText(R.string.app_name)
+      mTxtCurrentTool!!.setText("")
     } else if (!mPhotoEditor!!.isCacheEmpty) {
       showSaveDialog()
     } else {
