@@ -73,14 +73,8 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   private var mShapeBSFragment: ShapeBSFragment? = null
   private var mShapeBuilder: ShapeBuilder? = null
   private var mStickerFragment: StickerFragment? = null
-  private var mTxtCurrentTool: TextView? = null
   private var mRvTools: RecyclerView? = null
-  private var mRvFilters: RecyclerView? = null
-
-  private val mFilterViewAdapter = FilterViewAdapter(this)
   private var mRootView: ConstraintLayout? = null
-  private val mConstraintSet = ConstraintSet()
-  private var mIsFilterVisible = false
 
   private var doneText = "Done"
   private var brushText = "Draw"
@@ -140,10 +134,6 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
     if (mEditingToolsAdapter != null) {
       mRvTools!!.adapter = mEditingToolsAdapter
     }
-
-    val llmFilters = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-    mRvFilters!!.layoutManager = llmFilters
-    mRvFilters!!.adapter = mFilterViewAdapter
 
     val pinchTextScalable = intent.getBooleanExtra(PINCH_TEXT_SCALABLE_INTENT_KEY, true)
     mPhotoEditor = PhotoEditor.Builder(this, mPhotoEditorView)
@@ -230,15 +220,11 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
     val imgClose: ImageView = findViewById(R.id.imgClose)
     imgClose.setOnClickListener(this)
     //SAVE
-    val btnSave: TextView = findViewById(R.id.btnSave)
+    val btnSave: ImageView = findViewById(R.id.btnSave)
     btnSave.setOnClickListener(this)
-    btnSave.setTextColor(Color.BLACK)
-    btnSave.text = doneText
 
     mPhotoEditorView = findViewById(R.id.photoEditorView)
-    mTxtCurrentTool = findViewById(R.id.txtCurrentTool)
     mRvTools = findViewById(R.id.rvConstraintTools)
-    mRvFilters = findViewById(R.id.rvFilterView)
     mRootView = findViewById(R.id.rootView)
   }
 
@@ -248,7 +234,6 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
       val styleBuilder = TextStyleBuilder()
       styleBuilder.withTextColor(newColorCode)
       mPhotoEditor!!.editText(rootView, inputText, styleBuilder)
-      mTxtCurrentTool!!.setText(textText)
     }
   }
 
@@ -286,7 +271,6 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
       }
 
       R.id.btnSave -> {
-
         saveImage()
       }
 
@@ -350,17 +334,14 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
 
   override fun onColorChanged(colorCode: Int) {
     mPhotoEditor!!.setShape(mShapeBuilder!!.withShapeColor(colorCode))
-    mTxtCurrentTool!!.setText(brushText)
   }
 
   override fun onOpacityChanged(opacity: Int) {
     mPhotoEditor!!.setShape(mShapeBuilder!!.withShapeOpacity(opacity))
-    mTxtCurrentTool!!.setText(brushText)
   }
 
   override fun onShapeSizeChanged(shapeSize: Int) {
     mPhotoEditor!!.setShape(mShapeBuilder!!.withShapeSize(shapeSize.toFloat()))
-    mTxtCurrentTool!!.setText(brushText)
   }
 
   override fun onShapePicked(shapeType: ShapeType) {
@@ -369,7 +350,6 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
 
   override fun onStickerClick(bitmap: Bitmap) {
     mPhotoEditor!!.addImage(bitmap)
-    mTxtCurrentTool!!.setText(stickerText)
   }
 
   private fun showSaveDialog() {
@@ -399,7 +379,6 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
         mPhotoEditor!!.setBrushDrawingMode(true)
         mShapeBuilder = ShapeBuilder()
         mPhotoEditor!!.setShape(mShapeBuilder)
-        mTxtCurrentTool!!.setText(brushText)
         showBottomSheetDialogFragment(mShapeBSFragment)
       }
 
@@ -410,19 +389,13 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
           val styleBuilder = TextStyleBuilder()
           styleBuilder.withTextColor(colorCode)
           mPhotoEditor!!.addText(inputText, styleBuilder)
-          mTxtCurrentTool!!.setText(textText)
         }
       }
 
       ToolType.ERASER -> {
         mPhotoEditor!!.brushEraser()
-        mTxtCurrentTool!!.setText(R.string.label_eraser_mode)
       }
 
-      ToolType.FILTER -> {
-        mTxtCurrentTool!!.setText(R.string.label_filter)
-        showFilter(true)
-      }
 
       ToolType.STICKER ->
       {
@@ -439,35 +412,8 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
     fragment.show(supportFragmentManager, fragment.tag)
   }
 
-  fun showFilter(isVisible: Boolean) {
-    mIsFilterVisible = isVisible
-    mConstraintSet.clone(mRootView)
-    if (isVisible) {
-      mConstraintSet.clear(mRvFilters!!.id, ConstraintSet.START)
-      mConstraintSet.connect(
-        mRvFilters!!.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START
-      )
-      mConstraintSet.connect(
-        mRvFilters!!.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END
-      )
-    } else {
-      mConstraintSet.connect(
-        mRvFilters!!.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.END
-      )
-      mConstraintSet.clear(mRvFilters!!.id, ConstraintSet.END)
-    }
-    val changeBounds = ChangeBounds()
-    changeBounds.duration = 350
-    changeBounds.interpolator = AnticipateOvershootInterpolator(1.0f)
-    TransitionManager.beginDelayedTransition(mRootView!!, changeBounds)
-    mConstraintSet.applyTo(mRootView)
-  }
-
   override fun onBackPressed() {
-    if (mIsFilterVisible) {
-      showFilter(false)
-      mTxtCurrentTool!!.setText("")
-    } else if (!mPhotoEditor!!.isCacheEmpty) {
+    if (!mPhotoEditor!!.isCacheEmpty) {
       showSaveDialog()
     } else {
       onCancel()

@@ -46,9 +46,11 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvConstraintTools"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:background="@color/tool_bg"
+        android:gravity="center"
         android:orientation="horizontal"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
@@ -58,18 +60,6 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:listitem="@layout/row_editing_tools" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvFilterView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@color/tool_bg"
-        android:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="@+id/rvConstraintTools"
-        app:layout_constraintStart_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/rvConstraintTools"
-        tools:listitem="@layout/row_filter_view" />
-
     <ImageView
         android:id="@+id/imgClose"
         android:layout_width="wrap_content"
@@ -78,9 +68,8 @@
         android:layout_alignParentLeft="true"
         android:layout_margin="12dp"
         android:src="@drawable/ic_close"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/guideline" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/txtCurrentTool"
@@ -94,21 +83,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/guideline" />
 
-    <TextView
+    <ImageView
         android:id="@+id/btnSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="12dp"
-        android:layout_marginEnd="12dp"
-        android:layout_marginRight="12dp"
-        android:background="@drawable/button_shape"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="6dp"
-        android:text="@string/done"
-        android:color="#FFFFFF"
-        android:textStyle="bold"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_margin="12dp"
+        android:src="@drawable/ic_done"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/guideline" />
-
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
