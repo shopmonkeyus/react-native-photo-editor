@@ -314,7 +314,7 @@ class ZLClipImageViewController: UIViewController {
         self.bottomToolView.addSubview(self.bottomToolLineView)
         
         self.cancelBtn = UIButton(type: .custom)
-        self.cancelBtn.setImage(getImage("zl_close"), for: .normal)
+        self.cancelBtn.setImage(getImage("zl_retake"), for: .normal)
         self.cancelBtn.adjustsImageWhenHighlighted = false
         self.cancelBtn.zl_enlargeValidTouchArea(inset: 20)
         self.cancelBtn.addTarget(self, action: #selector(cancelBtnClick), for: .touchUpInside)
