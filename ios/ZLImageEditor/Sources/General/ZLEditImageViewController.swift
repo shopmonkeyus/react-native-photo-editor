@@ -287,15 +287,15 @@ public class ZLEditImageViewController: UIViewController {
             insets = self.view.safeAreaInsets
         }
         
-        self.scrollView.frame = CGRect(x: 0, y: insets.top + 50, width: self.view.frame.width, height: self.view.frame.height - 140 - insets.bottom - insets.top - 50)
+        self.scrollView.frame = CGRect(x: 0, y: insets.top + 66, width: self.view.frame.width, height: self.view.frame.height - 140 - insets.bottom - insets.top - 50)
         self.resetContainerViewFrame()
         
-        self.topShadowView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: insets.top + 50)
+        self.topShadowView.frame = CGRect(x: 0, y: 16, width: self.view.frame.width, height: insets.top + 50)
         self.topShadowLayer.frame = self.topShadowView.bounds
         let iconBackSize = 32.0
         
-        self.cancelBtn.frame = CGRect(x: 20.0 , y: insets.top, width: iconBackSize, height: iconBackSize)
-        self.doneBtn.frame = CGRect(x: self.view.frame.width - iconBackSize - 20.0 , y: insets.top, width: iconBackSize, height: iconBackSize)
+        self.cancelBtn.frame = CGRect(x: 16.0 , y: insets.top, width: iconBackSize, height: iconBackSize)
+        self.doneBtn.frame = CGRect(x: self.view.frame.width - iconBackSize - 16.0 , y: insets.top, width: iconBackSize, height: iconBackSize)
         
         self.bottomShadowView.frame = CGRect(x: 0, y: self.view.frame.height-140-insets.bottom, width: self.view.frame.width, height: 140+insets.bottom)
         self.bottomShadowLayer.frame = self.bottomShadowView.bounds
