@@ -96,13 +96,13 @@ class ZLInputTextViewController: UIViewController {
         }
         
         let btnY = insets.top + 20
-        let cancelBtnW = localLanguageTextValue(.cancel).boundingRect(font: ZLImageEditorLayout.bottomToolTitleFont, limitSize: CGSize(width: .greatestFiniteMagnitude, height: ZLImageEditorLayout.bottomToolBtnH)).width + 20
-        self.cancelBtn.frame = CGRect(x: 15, y: btnY, width: cancelBtnW, height: ZLImageEditorLayout.bottomToolBtnH)
+        let buttonsWidth = CGFloat(32.0)
+        let buttonsHeight = CGFloat(32.0)
         
-        let doneBtnW = localLanguageTextValue(.done).boundingRect(font: ZLImageEditorLayout.bottomToolTitleFont, limitSize: CGSize(width: .greatestFiniteMagnitude, height: ZLImageEditorLayout.bottomToolBtnH)).width + 20
-        self.doneBtn.frame = CGRect(x: view.bounds.width - 20 - doneBtnW, y: btnY, width: doneBtnW, height: ZLImageEditorLayout.bottomToolBtnH)
         
-        self.textView.frame = CGRect(x: 20, y: cancelBtn.frame.maxY + 20, width: view.bounds.width - 40, height: 150)
+        self.cancelBtn.frame = CGRect(x: 0, y: btnY, width: buttonsWidth, height: buttonsHeight)
+        self.doneBtn.frame   = CGRect(x: view.bounds.width - buttonsWidth, y: btnY, width: buttonsWidth, height: buttonsHeight)
+        self.textView.frame  = CGRect(x: 20, y: cancelBtn.frame.maxY + 20, width: view.bounds.width - 40, height: 150)
         
         if let index = ZLImageEditorConfiguration.default().textStickerTextColors.firstIndex(where: { $0 == self.currentTextColor}) {
             self.collectionView.scrollToItem(at: IndexPath(row: index, section: 0), at: .centeredHorizontally, animated: false)
@@ -123,14 +123,12 @@ class ZLInputTextViewController: UIViewController {
         bgImageView.addSubview(coverView)
         
         self.cancelBtn = UIButton(type: .custom)
-        self.cancelBtn.setTitle(localLanguageTextValue(.cancel), for: .normal)
-        self.cancelBtn.titleLabel?.font = ZLImageEditorLayout.bottomToolTitleFont
+        self.cancelBtn.setImage(getImage("zl_close"), for: .normal)
         self.cancelBtn.addTarget(self, action: #selector(cancelBtnClick), for: .touchUpInside)
         view.addSubview(self.cancelBtn)
         
         self.doneBtn = UIButton(type: .custom)
-        self.doneBtn.setTitle(localLanguageTextValue(.done), for: .normal)
-        self.doneBtn.titleLabel?.font = ZLImageEditorLayout.bottomToolTitleFont
+        self.doneBtn.setImage(getImage("zl_done"), for: .normal)
         self.doneBtn.addTarget(self, action: #selector(doneBtnClick), for: .touchUpInside)
         view.addSubview(self.doneBtn)
         

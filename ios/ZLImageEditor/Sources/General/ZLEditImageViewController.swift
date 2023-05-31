@@ -527,7 +527,7 @@ public class ZLEditImageViewController: UIViewController {
         asbinTipLabel.font = UIFont.systemFont(ofSize: 12)
         asbinTipLabel.textAlignment = .center
         asbinTipLabel.textColor = .white
-        asbinTipLabel.text = localLanguageTextValue(.textStickerRemoveTips)
+        asbinTipLabel.text = ZLImageEditorConfiguration.default().remoteStickerTranslation
         asbinTipLabel.font = .systemFont(ofSize: 12, weight: .bold)
         asbinTipLabel.numberOfLines = 2
         asbinTipLabel.lineBreakMode = .byCharWrapping
