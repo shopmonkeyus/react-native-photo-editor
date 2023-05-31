@@ -1,11 +1,14 @@
 package com.reactnativephotoeditor.activity;
 
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,12 +18,27 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.reactnativephotoeditor.R;
 
+import java.util.ArrayList;
+
 import ja.burhanrashid52.photoeditor.shape.ShapeType;
 
 public class ShapeBSFragment extends BottomSheetDialogFragment implements SeekBar.OnSeekBarChangeListener {
+    private String shapeText = "Shape";
+    private String brushText = "Brush";
+    private String opacityText = "Opacity";
+    private String lineText = "Line";
+    private String ovalText = "Oval";
+    private String rectangleText = "Rectangle";
 
-    public ShapeBSFragment() {
-        // Required empty public constructor
+    public ShapeBSFragment(ArrayList<String> translations) {
+        if (translations.size() == 6) {
+            shapeText = translations.get(0);
+            brushText = translations.get(1);
+            opacityText = translations.get(2);
+            lineText = translations.get(3);
+            ovalText = translations.get(4);
+            rectangleText = translations.get(5);
+        }
     }
 
     private Properties mProperties;
@@ -52,6 +70,22 @@ public class ShapeBSFragment extends BottomSheetDialogFragment implements SeekBa
         SeekBar sbOpacity = view.findViewById(R.id.shapeOpacity);
         SeekBar sbBrushSize = view.findViewById(R.id.shapeSize);
         RadioGroup shapeGroup = view.findViewById(R.id.shapeRadioGroup);
+        TextView shapeTextView = view.findViewById(R.id.shapeType);
+        TextView brushTextView = view.findViewById(R.id.txtShapeSize);
+        TextView opacityTextView = view.findViewById(R.id.txtOpacity);
+        RadioButton brushRadio = view.findViewById(R.id.brushRadioButton);
+        RadioButton lineRadio = view.findViewById(R.id.lineRadioButton);
+        RadioButton ovalRadio = view.findViewById(R.id.ovalRadioButton);
+        RadioButton rectRadio = view.findViewById(R.id.rectRadioButton);
+
+        // Custom translations
+        shapeTextView.setText(shapeText);
+        brushTextView.setText(brushText);
+        opacityTextView.setText(opacityText);
+        brushRadio.setText(brushText);
+        lineRadio.setText(lineText);
+        ovalRadio.setText(ovalText);
+        rectRadio.setText(rectangleText);
 
         // shape picker
         shapeGroup.setOnCheckedChangeListener((group, checkedId) -> {
