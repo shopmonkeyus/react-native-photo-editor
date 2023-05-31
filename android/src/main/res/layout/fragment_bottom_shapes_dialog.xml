@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="#1D2030">
 
     <RadioGroup
         android:id="@+id/shapeRadioGroup"
@@ -21,36 +22,49 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="@string/label_brush" />
+            android:text="@string/label_brush"
+            android:textColor="@color/white"
+            android:buttonTint="@color/dark_gray"
+            />
 
         <RadioButton
             android:id="@+id/lineRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_line" />
+            android:text="@string/label_line"
+            android:textColor="@color/white"
+            android:buttonTint="@color/dark_gray"
+            />
 
         <RadioButton
             android:id="@+id/ovalRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_oval" />
+            android:text="@string/label_oval"
+            android:textColor="@color/white"
+            android:buttonTint="@color/dark_gray"/>
 
         <RadioButton
             android:id="@+id/rectRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_rectangle" />
+            android:text="@string/label_rectangle"
+            android:textColor="@color/white"
+            android:buttonTint="@color/dark_gray"/>
 
     </RadioGroup>
 
     <SeekBar
         android:id="@+id/shapeSize"
+        style="@style/Widget.AppCompat.SeekBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:progress="25"
+        android:progressTint="@color/dark_gray"
+        android:thumbTint="@color/dark_gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtShapeSize" />
@@ -64,6 +78,8 @@
         android:layout_marginEnd="8dp"
         android:max="255"
         android:progress="255"
+        android:progressTint="@color/dark_gray"
+        android:thumbTint="@color/dark_gray"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtOpacity" />
@@ -76,6 +92,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:text="Brush"
+        android:textColor="@color/white"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -89,6 +106,7 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
         android:text="Opacity"
+        android:textColor="@color/white"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -102,6 +120,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:text="Shape"
+        android:textColor="@color/white"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -124,7 +143,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/shapeOpacity"
-        tools:background="@android:color/black"
         tools:listitem="@layout/color_picker_item_list" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

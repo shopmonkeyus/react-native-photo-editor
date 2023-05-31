@@ -100,6 +100,8 @@ public class ZLEditImageViewController: UIViewController {
     
     var cancelBtn: UIButton!
     
+    var doneBtn: UIButton!
+    
     var scrollView: UIScrollView!
     
     var containerView: UIView!
@@ -128,8 +130,6 @@ public class ZLEditImageViewController: UIViewController {
     var bottomShadowView: UIView!
     
     var bottomShadowLayer: CAGradientLayer!
-    
-    var doneBtn: UIButton!
     
     var revokeBtn: UIButton!
     
@@ -276,10 +276,10 @@ public class ZLEditImageViewController: UIViewController {
     
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        guard self.shouldLayout else {
-            return
-        }
-        self.shouldLayout = false
+//        guard self.shouldLayout else {
+//            return
+//        }
+        //self.shouldLayout = false
         zl_debugPrint("edit image layout subviews")
         
         var insets = UIEdgeInsets.zero
@@ -287,14 +287,15 @@ public class ZLEditImageViewController: UIViewController {
             insets = self.view.safeAreaInsets
         }
         
-        self.scrollView.frame = CGRect(x: 0, y: insets.top + 50, width: self.view.frame.width, height: self.view.frame.height - 140 - insets.bottom - insets.top - 50)
+        self.scrollView.frame = CGRect(x: 0, y: insets.top + 66, width: self.view.frame.width, height: self.view.frame.height - 140 - insets.bottom - insets.top - 50)
         self.resetContainerViewFrame()
         
-        self.topShadowView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: insets.top + 50)
+        self.topShadowView.frame = CGRect(x: 0, y: 16, width: self.view.frame.width, height: insets.top + 50)
         self.topShadowLayer.frame = self.topShadowView.bounds
         let iconBackSize = 32.0
-        self.cancelBtn.frame = CGRect(x: self.view.frame.width - iconBackSize - 20.0 , y: insets.top, width: iconBackSize, height: iconBackSize)
         
+        self.cancelBtn.frame = CGRect(x: 16.0 , y: insets.top, width: iconBackSize, height: iconBackSize)
+        self.doneBtn.frame = CGRect(x: self.view.frame.width - iconBackSize - 16.0 , y: insets.top, width: iconBackSize, height: iconBackSize)
         
         self.bottomShadowView.frame = CGRect(x: 0, y: self.view.frame.height-140-insets.bottom, width: self.view.frame.width, height: 140+insets.bottom)
         self.bottomShadowLayer.frame = self.bottomShadowView.bounds
@@ -308,12 +309,13 @@ public class ZLEditImageViewController: UIViewController {
         
         let toolY: CGFloat = 85
         
-        let doneBtnH = ZLImageEditorLayout.bottomToolBtnH
-        let doneBtnW = localLanguageTextValue(.editFinish).boundingRect(font: ZLImageEditorLayout.bottomToolTitleFont, limitSize: CGSize(width: CGFloat.greatestFiniteMagnitude, height: doneBtnH)).width + 20
-        self.doneBtn.frame = CGRect(x: self.view.frame.width-20-doneBtnW, y: toolY-2, width: doneBtnW, height: doneBtnH)
-        self.doneBtn.backgroundColor = .blue
         
-        self.editToolCollectionView.frame = CGRect(x: 20, y: toolY, width: self.view.bounds.width - 20 - 20 - doneBtnW - 20, height: 30)
+        // Calc editToolFrame
+        
+        let usedWidth = self.view.bounds.width - (4 * 40)
+        let leftMargin = (self.view.bounds.width - (4 * 40)) / 2
+        
+        self.editToolCollectionView.frame = CGRect(x: leftMargin, y: toolY, width: usedWidth, height: 30)
         
         if !self.drawPaths.isEmpty {
             self.drawLine()
@@ -433,12 +435,18 @@ public class ZLEditImageViewController: UIViewController {
         self.topShadowView.layer.addSublayer(self.topShadowLayer)
         
         self.cancelBtn = UIButton(type: .custom)
-        self.cancelBtn.setImage(getImage("zl_retake"), for: .normal)
+        self.cancelBtn.setImage(getImage("zl_close"), for: .normal)
         self.cancelBtn.addTarget(self, action: #selector(cancelBtnClick), for: .touchUpInside)
         self.cancelBtn.adjustsImageWhenHighlighted = false
         self.cancelBtn.zl_enlargeValidTouchArea(inset: 30)
-        
         self.topShadowView.addSubview(self.cancelBtn)
+        
+        self.doneBtn = UIButton(type: .custom)
+        self.doneBtn.setImage(getImage("zl_done"), for: .normal)
+        self.doneBtn.addTarget(self, action: #selector(doneBtnClick), for: .touchUpInside)
+        self.doneBtn.adjustsImageWhenHighlighted = false
+        self.doneBtn.zl_enlargeValidTouchArea(inset: 30)
+        self.topShadowView.addSubview(self.doneBtn)
         
         self.bottomShadowView = UIView()
         self.view.addSubview(self.bottomShadowView)
@@ -449,12 +457,13 @@ public class ZLEditImageViewController: UIViewController {
         self.bottomShadowView.layer.addSublayer(self.bottomShadowLayer)
         
         let editToolLayout = UICollectionViewFlowLayout()
-        editToolLayout.itemSize = CGSize(width: 30, height: 30)
+        editToolLayout.itemSize = CGSize(width: 24, height: 24)
         editToolLayout.minimumLineSpacing = 20
-        editToolLayout.minimumInteritemSpacing = 20
+        editToolLayout.minimumInteritemSpacing = 30
         editToolLayout.scrollDirection = .horizontal
+        
         self.editToolCollectionView = UICollectionView(frame: .zero, collectionViewLayout: editToolLayout)
-        self.editToolCollectionView.backgroundColor = .clear
+        self.editToolCollectionView.backgroundColor = .black
         self.editToolCollectionView.delegate = self
         self.editToolCollectionView.dataSource = self
         self.editToolCollectionView.showsHorizontalScrollIndicator = false
@@ -462,25 +471,22 @@ public class ZLEditImageViewController: UIViewController {
         
         ZLEditToolCell.zl_register(self.editToolCollectionView)
         
-        self.doneBtn = UIButton(type: .custom)
-        self.doneBtn.titleLabel?.font = ZLImageEditorLayout.bottomToolTitleFont
-        self.doneBtn.backgroundColor = ZLImageEditorConfiguration.default().editDoneBtnBgColor
-        self.doneBtn.setTitleColor(ZLImageEditorConfiguration.default().editDoneTitleColor, for: .normal)
-        self.doneBtn.setTitle(localLanguageTextValue(.editFinish), for: .normal)
-        self.doneBtn.addTarget(self, action: #selector(doneBtnClick), for: .touchUpInside)
-        self.doneBtn.layer.masksToBounds = true
-        self.doneBtn.layer.cornerRadius = ZLImageEditorLayout.bottomToolBtnCornerRadius
-        self.bottomShadowView.addSubview(self.doneBtn)
-        
-        self.doneBtn.titleLabel?.font = .systemFont(ofSize: 14, weight: .bold)
-        
         let drawColorLayout = UICollectionViewFlowLayout()
         drawColorLayout.itemSize = CGSize(width: 30, height: 30)
-        drawColorLayout.minimumLineSpacing = 15
-        drawColorLayout.minimumInteritemSpacing = 15
+        drawColorLayout.minimumLineSpacing = 18
+        drawColorLayout.minimumInteritemSpacing = 20
         drawColorLayout.scrollDirection = .horizontal
-        drawColorLayout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
-        self.drawColorCollectionView = UICollectionView(frame: .zero, collectionViewLayout: drawColorLayout)
+        drawColorLayout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 0)
+        self.drawColorCollectionView = UICollectionView(
+            frame: CGRect(
+                x: 16.0,
+                y: 0,
+                width: self.view.frame.width - 16.0,
+                height: 50.0
+            ),
+            collectionViewLayout: drawColorLayout
+        )
+        
         self.drawColorCollectionView.backgroundColor = .clear
         self.drawColorCollectionView.delegate = self
         self.drawColorCollectionView.dataSource = self
@@ -530,7 +536,7 @@ public class ZLEditImageViewController: UIViewController {
         asbinTipLabel.font = UIFont.systemFont(ofSize: 12)
         asbinTipLabel.textAlignment = .center
         asbinTipLabel.textColor = .white
-        asbinTipLabel.text = localLanguageTextValue(.textStickerRemoveTips)
+        asbinTipLabel.text = ZLImageEditorConfiguration.default().remoteStickerTranslation
         asbinTipLabel.font = .systemFont(ofSize: 12, weight: .bold)
         asbinTipLabel.numberOfLines = 2
         asbinTipLabel.lineBreakMode = .byCharWrapping
@@ -1379,16 +1385,16 @@ class ZLDrawColorCell: UICollectionViewCell {
         
         self.bgWhiteView = UIView()
         self.bgWhiteView.backgroundColor = .white
-        self.bgWhiteView.layer.cornerRadius = 10
+        self.bgWhiteView.layer.cornerRadius = 16
         self.bgWhiteView.layer.masksToBounds = true
-        self.bgWhiteView.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        self.bgWhiteView.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
         self.bgWhiteView.center = CGPoint(x: self.bounds.midX, y: self.bounds.midY)
         self.contentView.addSubview(self.bgWhiteView)
         
         self.colorView = UIView()
-        self.colorView.layer.cornerRadius = 8
+        self.colorView.layer.cornerRadius = 15
         self.colorView.layer.masksToBounds = true
-        self.colorView.frame = CGRect(x: 0, y: 0, width: 16, height: 16)
+        self.colorView.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         self.colorView.center = CGPoint(x: self.bounds.midX, y: self.bounds.midY)
         self.contentView.addSubview(self.colorView)
     }

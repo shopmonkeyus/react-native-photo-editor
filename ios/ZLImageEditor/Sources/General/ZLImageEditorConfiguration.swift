@@ -133,8 +133,8 @@ public class ZLImageEditorConfiguration: NSObject {
     
     /// The background color of edit done button.
     @objc public var editDoneBtnBgColor: UIColor = zlRGB(139, 105, 255)
-    
     @objc public var editDoneTitleColor: UIColor = .white
+    @objc public var remoteStickerTranslation: String = "Drag here to remove"
 }
 
 

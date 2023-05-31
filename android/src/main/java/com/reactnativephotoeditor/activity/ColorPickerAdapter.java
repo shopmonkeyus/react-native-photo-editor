@@ -3,6 +3,7 @@ package com.reactnativephotoeditor.activity;
 import com.reactnativephotoeditor.R;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -49,7 +50,8 @@ public class ColorPickerAdapter extends RecyclerView.Adapter<ColorPickerAdapter.
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.colorPickerView.setBackgroundColor(colorPickerColors.get(position));
+        holder.colorPickerView.getBackground().setColorFilter(colorPickerColors.get(position), PorterDuff.Mode.ADD);
+        // holder.colorPickerView.setBackgroundColor(colorPickerColors.get(position));
     }
 
     @Override
