@@ -95,13 +95,13 @@ class ZLInputTextViewController: UIViewController {
             insets = self.view.safeAreaInsets
         }
         
-        let btnY = insets.top + 20
+        let btnY = insets.top + 16
         let buttonsWidth = CGFloat(32.0)
         let buttonsHeight = CGFloat(32.0)
         
         
-        self.cancelBtn.frame = CGRect(x: 0, y: btnY, width: buttonsWidth, height: buttonsHeight)
-        self.doneBtn.frame   = CGRect(x: view.bounds.width - buttonsWidth, y: btnY, width: buttonsWidth, height: buttonsHeight)
+        self.cancelBtn.frame = CGRect(x: 16.0, y: btnY, width: buttonsWidth, height: buttonsHeight)
+        self.doneBtn.frame   = CGRect(x: view.bounds.width - buttonsWidth - 16.0, y: btnY, width: buttonsWidth, height: buttonsHeight)
         self.textView.frame  = CGRect(x: 20, y: cancelBtn.frame.maxY + 20, width: view.bounds.width - 40, height: 150)
         
         if let index = ZLImageEditorConfiguration.default().textStickerTextColors.firstIndex(where: { $0 == self.currentTextColor}) {

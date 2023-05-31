@@ -276,10 +276,10 @@ public class ZLEditImageViewController: UIViewController {
     
     public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        guard self.shouldLayout else {
-            return
-        }
-        self.shouldLayout = false
+//        guard self.shouldLayout else {
+//            return
+//        }
+        //self.shouldLayout = false
         zl_debugPrint("edit image layout subviews")
         
         var insets = UIEdgeInsets.zero
@@ -457,9 +457,9 @@ public class ZLEditImageViewController: UIViewController {
         self.bottomShadowView.layer.addSublayer(self.bottomShadowLayer)
         
         let editToolLayout = UICollectionViewFlowLayout()
-        editToolLayout.itemSize = CGSize(width: 20, height: 20)
+        editToolLayout.itemSize = CGSize(width: 24, height: 24)
         editToolLayout.minimumLineSpacing = 20
-        editToolLayout.minimumInteritemSpacing = 20
+        editToolLayout.minimumInteritemSpacing = 30
         editToolLayout.scrollDirection = .horizontal
         
         self.editToolCollectionView = UICollectionView(frame: .zero, collectionViewLayout: editToolLayout)
@@ -473,11 +473,20 @@ public class ZLEditImageViewController: UIViewController {
         
         let drawColorLayout = UICollectionViewFlowLayout()
         drawColorLayout.itemSize = CGSize(width: 30, height: 30)
-        drawColorLayout.minimumLineSpacing = 15
-        drawColorLayout.minimumInteritemSpacing = 15
+        drawColorLayout.minimumLineSpacing = 18
+        drawColorLayout.minimumInteritemSpacing = 20
         drawColorLayout.scrollDirection = .horizontal
-        drawColorLayout.sectionInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
-        self.drawColorCollectionView = UICollectionView(frame: .zero, collectionViewLayout: drawColorLayout)
+        drawColorLayout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 0)
+        self.drawColorCollectionView = UICollectionView(
+            frame: CGRect(
+                x: 16.0,
+                y: 0,
+                width: self.view.frame.width - 16.0,
+                height: 50.0
+            ),
+            collectionViewLayout: drawColorLayout
+        )
+        
         self.drawColorCollectionView.backgroundColor = .clear
         self.drawColorCollectionView.delegate = self
         self.drawColorCollectionView.dataSource = self
@@ -1376,16 +1385,16 @@ class ZLDrawColorCell: UICollectionViewCell {
         
         self.bgWhiteView = UIView()
         self.bgWhiteView.backgroundColor = .white
-        self.bgWhiteView.layer.cornerRadius = 10
+        self.bgWhiteView.layer.cornerRadius = 16
         self.bgWhiteView.layer.masksToBounds = true
-        self.bgWhiteView.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        self.bgWhiteView.frame = CGRect(x: 0, y: 0, width: 32, height: 32)
         self.bgWhiteView.center = CGPoint(x: self.bounds.midX, y: self.bounds.midY)
         self.contentView.addSubview(self.bgWhiteView)
         
         self.colorView = UIView()
-        self.colorView.layer.cornerRadius = 8
+        self.colorView.layer.cornerRadius = 15
         self.colorView.layer.masksToBounds = true
-        self.colorView.frame = CGRect(x: 0, y: 0, width: 16, height: 16)
+        self.colorView.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
         self.colorView.center = CGPoint(x: self.bounds.midX, y: self.bounds.midY)
         self.contentView.addSubview(self.colorView)
     }
