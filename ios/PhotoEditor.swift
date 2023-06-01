@@ -85,6 +85,9 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
         let stickers = options["stickers"] as? [String] ?? []
         ZLImageEditorConfiguration.default().imageStickerContainerView = StickerView(stickers: stickers)
         
+        // Translations
+        let translations = options["translations"] as? [String] ?? []
+        ZLImageEditorConfiguration.default().remoteStickerTranslation = translations.first ?? "Drag here to remove"
         
         //Config
         ZLImageEditorConfiguration.default().editDoneBtnBgColor = UIColor(red:255/255.0, green:238/255.0, blue:101/255.0, alpha:1.0)
