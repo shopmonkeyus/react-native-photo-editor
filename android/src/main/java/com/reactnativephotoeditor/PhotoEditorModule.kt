@@ -21,7 +21,7 @@ class PhotoEditorModule(reactContext: ReactApplicationContext) : ReactContextBas
   @ReactMethod
   fun open(options: ReadableMap?, promise: Promise): Unit {
     this.promise = promise
-    val activity = currentActivity
+    val activity = reactApplicationContext.getCurrentActivity()
     if (activity == null) {
       promise.reject("ACTIVITY_DOES_NOT_EXIST", "Activity doesn't exist");
       return;
@@ -37,7 +37,7 @@ class PhotoEditorModule(reactContext: ReactApplicationContext) : ReactContextBas
     intent.putExtra("stickers", stickers.toArrayList())
     intent.putExtra("translations",  translations.toArrayList())
 
-    activity.startActivityForResult(intent, EDIT_SUCCESSFUL)
+    reactApplicationContext.startActivityForResult(intent, EDIT_SUCCESSFUL, null)
   }
 
   private val mActivityEventListener: ActivityEventListener = object : BaseActivityEventListener() {
@@ -45,17 +45,17 @@ class PhotoEditorModule(reactContext: ReactApplicationContext) : ReactContextBas
       if (requestCode == EDIT_SUCCESSFUL && intent != null) {
         when (resultCode) {
           ResponseCode.RESULT_OK -> {
-            val path = intent.getStringExtra("path")
-            promise?.resolve("file://$path")
+          val path = intent?.getStringExtra("path")
+          promise?.resolve("file://$path")
           }
           ResponseCode.RESULT_CANCELED -> {
-            promise?.reject("USER_CANCELLED", "User has cancelled", null)
+          promise?.reject("USER_CANCELLED", "User has cancelled", null)
           }
           ResponseCode.LOAD_IMAGE_FAILED -> {
-            val path = intent.getStringExtra("path")
+            val path = intent?.getStringExtra("path")
             promise?.reject("LOAD_IMAGE_FAILED", "Load image failed: $path", null)
           }
-          
+
         }
       }
     }

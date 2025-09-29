@@ -392,6 +392,10 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
                 mPhotoEditor!!.brushEraser()
             }
 
+            ToolType.FILTER -> {
+                sendEventToRN("Filter")
+                showFilter(true)
+            }
 
             ToolType.STICKER -> {
                 sendEventToRN("Stickers")
@@ -406,6 +410,8 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
         }
         fragment.show(supportFragmentManager, fragment.tag)
     }
+
+    private fun showFilter(show: Boolean) { }
 
     override fun onBackPressed() {
         onCancel()
