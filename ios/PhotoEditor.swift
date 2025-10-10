@@ -21,7 +21,7 @@ public enum ImageLoad: Error {
 class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
     var window: UIWindow?
     // var bridge: RCTBridge!
-    
+
     var resolve: RCTPromiseResolveBlock!
     var reject: RCTPromiseRejectBlock!
     var hasListeners = false
@@ -29,12 +29,12 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
     override func supportedEvents() -> [String] {
         return ["EVENT_BARONA"]
     }
-    
+
     override func startObserving() {
         print("startObserving")
         hasListeners = true
     }
-    
+
     override func stopObserving() {
         print("stopObserving")
         hasListeners = false
@@ -43,7 +43,7 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
     func sendEventToReactNative(eventName: String) {
         print("sendEvent")
         print(hasListeners)
-        
+
         if (hasListeners) {
             self.sendEvent(withName: "EVENT_BARONA", body: eventName)
         }
@@ -60,7 +60,7 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
             reject("DONT_FIND_IMAGE", "Dont find image", nil)
             return;
         }
-        
+
         getUIImage(url: path) { image in
             DispatchQueue.main.async {
                 //  set config
@@ -71,29 +71,29 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
             reject("LOAD_IMAGE_FAILED", "Load image failed: " + path, nil)
         }
     }
-    
+
     func onCancel() {
         sendEventToReactNative(eventName: "Cancel")
         self.reject("USER_CANCELLED", "User has cancelled", nil)
     }
-    
+
     private func setConfiguration(options: NSDictionary, resolve:@escaping RCTPromiseResolveBlock,reject:@escaping RCTPromiseRejectBlock) -> Void{
         self.resolve = resolve;
         self.reject = reject;
-        
+
         // Stickers
         let stickers = options["stickers"] as? [String] ?? []
         ZLImageEditorConfiguration.default().imageStickerContainerView = StickerView(stickers: stickers)
-        
+
         // Translations
         let translations = options["translations"] as? [String] ?? []
         ZLImageEditorConfiguration.default().remoteStickerTranslation = translations.first ?? "Drag here to remove"
-        
+
         //Config
         ZLImageEditorConfiguration.default().editDoneBtnBgColor = UIColor(red:255/255.0, green:238/255.0, blue:101/255.0, alpha:1.0)
         // ZLImageEditorConfiguration.default().editImageTools = [.draw, .clip, .filter, .imageSticker, .textSticker]
         ZLImageEditorConfiguration.default().editImageTools = [.draw, .textSticker, .imageSticker, .clip]
-        
+
         //Filters Lut
         do {
             let filters = ColorCubeLoader()
@@ -102,16 +102,17 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
             assertionFailure("\(error)")
         }
     }
-    
+
     private func presentController(image: UIImage) {
         if let controller = UIApplication.getTopViewController() {
             controller.modalTransitionStyle = .crossDissolve
-            
-            ZLEditImageViewController.showEditImageVC(parentVC:controller , image: image, delegate: self) { [weak self] (resImage, editModel) in
+            self.configureEdgeToEdgeSupport()
+
+            ZLEditImageViewController.showEditImageVC(parentVC: controller, image: image, delegate: self) { [weak self] (resImage, editModel) in
                 let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
-                
+
                 let destinationPath = URL(fileURLWithPath: documentsPath).appendingPathComponent(String(Int64(Date().timeIntervalSince1970 * 1000)) + ".png")
-                
+
                 do {
                     try resImage.pngData()?.write(to: destinationPath)
                     self?.sendEventToReactNative(eventName: "Done")
@@ -122,8 +123,23 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
             }
         }
     }
-    
-    
+
+    private func configureEdgeToEdgeSupport() {
+        if #available(iOS 13.0, *) {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
+            guard let window = windowScene.windows.first else { return }
+
+            window.backgroundColor = .black
+            if #available(iOS 15.0, *) {
+                let appearance = UINavigationBarAppearance()
+                appearance.configureWithTransparentBackground()
+                UINavigationBar.appearance().standardAppearance = appearance
+                UINavigationBar.appearance().scrollEdgeAppearance = appearance
+            }
+        }
+    }
+
+
     private func getUIImage (url: String ,completion:@escaping (UIImage) -> (), reject:@escaping(String)->()){
         if let path = URL(string: url) {
             SDWebImageManager.shared.loadImage(with: path, options: .continueInBackground, progress: { (recieved, expected, nil) in
@@ -143,20 +159,31 @@ class PhotoEditor: RCTEventEmitter, ZLEditImageControllerDelegate {
             reject("false")
         }
     }
-    
+
 }
 
 extension UIApplication {
-    class func getTopViewController(base: UIViewController? = UIApplication.shared.keyWindow?.rootViewController) -> UIViewController? {
-        
-        if let nav = base as? UINavigationController {
+    class func getTopViewController(base: UIViewController? = nil) -> UIViewController? {
+        let baseViewController: UIViewController?
+
+        if #available(iOS 13.0, *) {
+            baseViewController = base ?? UIApplication.shared.connectedScenes
+                .filter({$0.activationState == .foregroundActive})
+                .compactMap({$0 as? UIWindowScene})
+                .first?.windows
+                .filter({$0.isKeyWindow}).first?.rootViewController
+        } else {
+            baseViewController = base ?? UIApplication.shared.keyWindow?.rootViewController
+        }
+
+        if let nav = baseViewController as? UINavigationController {
             return getTopViewController(base: nav.visibleViewController)
-        } else if let tab = base as? UITabBarController, let selected = tab.selectedViewController {
+        } else if let tab = baseViewController as? UITabBarController, let selected = tab.selectedViewController {
             return getTopViewController(base: selected)
-        } else if let presented = base?.presentedViewController {
+        } else if let presented = baseViewController?.presentedViewController {
             return getTopViewController(base: presented)
         }
-        
-        return base
+
+        return baseViewController
     }
 }

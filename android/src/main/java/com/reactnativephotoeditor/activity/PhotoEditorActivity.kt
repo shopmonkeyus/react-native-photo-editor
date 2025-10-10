@@ -16,6 +16,10 @@ import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import android.view.animation.AnticipateOvershootInterpolator
 import android.widget.Button
 import android.widget.ImageView
@@ -61,6 +65,7 @@ import ja.burhanrashid52.photoeditor.PhotoEditor.OnSaveListener
 import ja.burhanrashid52.photoeditor.shape.ShapeBuilder
 import ja.burhanrashid52.photoeditor.shape.ShapeType
 import java.io.File
+import kotlin.math.roundToInt
 
 
 open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnClickListener,
@@ -88,8 +93,11 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        makeEdgeToEdge()
         setContentView(R.layout.photo_editor_view)
         initViews()
+        setupWindowInsets()
 
         //intern
         val value = intent.extras
@@ -198,11 +206,42 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
         }
     }
 
-    private fun makeFullScreen() {
-        requestWindowFeature(Window.FEATURE_NO_TITLE)
-        window.setFlags(
-            WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN
-        )
+    private fun makeEdgeToEdge() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
+        }
+    }
+
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).roundToInt()
+    }
+
+    private fun setupWindowInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(mRootView!!) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val statusBarHeight = systemBars.top
+            val navigationBarHeight = systemBars.bottom
+
+            val imgClose: ImageView = findViewById(R.id.imgClose)
+            val btnSave: ImageView = findViewById(R.id.btnSave)
+
+            val params = imgClose.layoutParams as ConstraintLayout.LayoutParams
+            params.topMargin = statusBarHeight + dp(12)
+            imgClose.layoutParams = params
+
+            val saveParams = btnSave.layoutParams as ConstraintLayout.LayoutParams
+            saveParams.topMargin = statusBarHeight + dp(12)
+            btnSave.layoutParams = saveParams
+
+            val toolsParams = mRvTools?.layoutParams as? ConstraintLayout.LayoutParams
+            toolsParams?.bottomMargin = navigationBarHeight + dp(4)
+            mRvTools?.layoutParams = toolsParams
+
+            insets
+        }
+        ViewCompat.requestApplyInsets(mRootView!!)
     }
 
     private fun initViews() {

@@ -11,7 +11,9 @@
     >
     <activity
       android:name=".activity.PhotoEditorActivity"
-      android:configChanges="orientation|keyboardHidden|screenSize" 
-      android:screenOrientation="portrait" />
+      android:configChanges="orientation|keyboardHidden|screenSize"
+      android:screenOrientation="portrait"
+      android:theme="@style/EdgeToEdgeTheme"
+      android:exported="false" />
   </application>
 </manifest>
