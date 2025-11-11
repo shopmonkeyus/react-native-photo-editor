@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
 
   s.dependency "React-Core"
   s.dependency "SDWebImage", "~> 5.21.0"
-  s.dependency 'SDWebImageWebPCoder', '~> 0.8.4'
+  s.dependency 'SDWebImageWebPCoder', '~> 0.14.6'
 
   s.subspec 'ZLImageEditor' do |zl|
     zl.name             = "ZLImageEditor"
