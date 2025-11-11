@@ -15,9 +15,9 @@ Pod::Spec.new do |s|
   s.swift_version = ['5.0', '5.1', '5.2']
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
-  
+
   s.dependency "React-Core"
-  s.dependency "SDWebImage", "~> 5.11.1"
+  s.dependency "SDWebImage", "~> 5.21.0"
   s.dependency 'SDWebImageWebPCoder', '~> 0.8.4'
 
   s.subspec 'ZLImageEditor' do |zl|
@@ -28,5 +28,5 @@ Pod::Spec.new do |s|
     zl.requires_arc     = true
     zl.frameworks       = "UIKit", "Accelerate"
   end
-  
+
 end
