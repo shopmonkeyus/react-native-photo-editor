@@ -42,7 +42,6 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.facebook.react.ReactApplication
-import com.facebook.react.ReactInstanceManager
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContext
@@ -172,13 +171,20 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
     }
 
     private fun sendEventToRN(name: String) {
-        val reactInstanceManager: ReactInstanceManager =
-            (applicationContext as ReactApplication).reactNativeHost.reactInstanceManager
+        val application = applicationContext as ReactApplication
+
+        // On the New Architecture (Fabric/Bridgeless) `reactNativeHost` throws
+        // ("You should not use ReactNativeHost directly in the New Architecture"),
+        // so resolve the context via `reactHost` first and only fall back to the
+        // old ReactNativeHost path when running on the legacy architecture.
+        val reactContext: ReactContext? =
+            application.reactHost?.currentReactContext
+                ?: application.reactNativeHost.reactInstanceManager.currentReactContext
 
         val params = Arguments.createMap()
         params.putString(EVENT_EMITTER_DATA, name)
 
-        reactInstanceManager.currentReactContext?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        reactContext?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
             ?.emit(EVENT_EMITTER_EVENT, params)
     }
 
